@@ -1,5 +1,7 @@
 package com.github.gabrielsilper.servlet;
 
+import com.github.gabrielsilper.domain.model.Chamado;
+import com.github.gabrielsilper.domain.model.Departamento;
 import com.github.gabrielsilper.repository.IChamadoRepository;
 import com.github.gabrielsilper.repository.IDepartamentoRepository;
 import jakarta.servlet.ServletException;
@@ -19,6 +21,44 @@ public class ChamadoServlet extends HttpServlet {
     ) {
         this.departamentoRepository = departamentoRepository;
         this.chamadoRepository = chamadoRepository;
+    }
+
+    @Override
+    public void init() throws ServletException {
+        Departamento rh = new Departamento("Recursos Humanos", "RH", "Maria Silva");
+        Departamento financeiro = new Departamento("Financeiro", "FIN", "João Santos");
+        Departamento laboratorios = new Departamento("Laboratórios", "LAB", "Ana Costa");
+        Departamento secretaria = new Departamento("Secretaria", "SEC", "Pedro Oliveira");
+
+        departamentoRepository.adicionar(rh);
+        departamentoRepository.adicionar(financeiro);
+        departamentoRepository.adicionar(laboratorios);
+        departamentoRepository.adicionar(secretaria);
+
+        chamadoRepository.adicionar(new Chamado(
+                "Computador não liga",
+                "Carlos Souza",
+                "Computador da recepção não apresenta sinal de energia ao pressionar o botão.",
+                10234,
+                101,
+                laboratorios
+        ));
+        chamadoRepository.adicionar(new Chamado(
+                "Impressora sem tinta",
+                "Fernanda Lima",
+                "Impressora do setor financeiro parou de imprimir e exibe alerta de toner.",
+                20567,
+                203,
+                financeiro
+        ));
+        chamadoRepository.adicionar(new Chamado(
+                "Rede lenta no setor",
+                "Paulo Mendes",
+                "Conexão com a internet muito lenta, dificultando o acesso ao sistema de folha.",
+                30112,
+                105,
+                rh
+        ));
     }
 
     @Override
