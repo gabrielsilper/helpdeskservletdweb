@@ -71,6 +71,8 @@ public class ChamadoServlet extends HttpServlet {
 
         if ("salvar".equals(action)) {
             salvarChamado(req);
+            resp.sendRedirect("chamados");
+            return;
         }
 
         resp.setContentType("text/html");
@@ -154,7 +156,6 @@ public class ChamadoServlet extends HttpServlet {
                       </div>
                       <button type="submit">Filtrar</button>
                     </form>
-                    <a href="chamados?action=cadastrar">Cadastrar Chamado</a>
                 </header>
                 """;
     }
@@ -192,6 +193,7 @@ public class ChamadoServlet extends HttpServlet {
                     </select>
                   </div>
                   <button type="submit">Salvar</button>
+                  <a href="chamados">Cancelar</a>
                 </form>
                 """, opcoes);
     }
@@ -213,6 +215,7 @@ public class ChamadoServlet extends HttpServlet {
         String linhas = gerarLinhasChamados(filtro);
 
         return String.format("""
+                <a href="chamados?action=cadastrar">Cadastrar Chamado</a>
                 <table border="1">
                   <thead>
                     <tr>
