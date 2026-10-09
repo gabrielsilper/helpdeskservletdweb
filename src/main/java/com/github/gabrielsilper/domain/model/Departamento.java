@@ -3,7 +3,7 @@ package com.github.gabrielsilper.domain.model;
 import java.util.Objects;
 
 public class Departamento {
-    private int id;
+    private Integer id;
     private String nome;
     private String sigla;
     private String responsavel;
@@ -11,18 +11,24 @@ public class Departamento {
     public Departamento() {
     }
 
-    public Departamento(int id, String nome, String sigla, String responsavel) {
+    public Departamento(String nome, String sigla, String responsavel) {
+        this.nome = nome;
+        this.sigla = sigla;
+        this.responsavel = responsavel;
+    }
+
+    public Departamento(Integer id, String nome, String sigla, String responsavel) {
         this.id = id;
         this.nome = nome;
         this.sigla = sigla;
         this.responsavel = responsavel;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -54,7 +60,7 @@ public class Departamento {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Departamento that = (Departamento) o;
-        return id == that.id && Objects.equals(nome, that.nome) && Objects.equals(sigla,
+        return Objects.equals(id, that.id) && Objects.equals(nome, that.nome) && Objects.equals(sigla,
                 that.sigla
         ) && Objects.equals(responsavel, that.responsavel);
     }
