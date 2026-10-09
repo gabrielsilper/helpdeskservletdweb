@@ -25,7 +25,7 @@ public class ChamadoServlet extends HttpServlet {
     }
 
     @Override
-    public void init() throws ServletException {
+    public void init() {
         Departamento rh = new Departamento("Recursos Humanos", "RH", "Maria Silva");
         Departamento financeiro = new Departamento("Financeiro", "FIN", "João Santos");
         Departamento laboratorios = new Departamento("Laboratórios", "LAB", "Ana Costa");
@@ -73,15 +73,16 @@ public class ChamadoServlet extends HttpServlet {
                 <!DOCTYPE html>
                 <html lang="pt-BR">
                 <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <title>Chamados</title>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+                  <title>Chamados</title>
                 </head>
-                <body>
+                  <body>
                     <h1>Helpdesk - Chamados de Suporte de TI</h1>
-                %s
-                </body>
-                </html>""", gerarMain());
+                    %s
+                    %s
+                  </body>
+                </html>""", gerarHeader(), gerarMain());
     }
 
     private String gerarMain() {
@@ -94,8 +95,22 @@ public class ChamadoServlet extends HttpServlet {
                 """, tabelaChamados);
     }
 
+    private String gerarHeader() {
+        return """
+                <header>
+                    <form method="get" action="chamados">
+                      <div>
+                        <label for="pesquisa">Filtrar por título ou solicitante:</label>
+                        <input type="text" id="pesquisa" name="pesquisa" placeholder="Digite o título ou solicitante..."/>
+                      </div>
+                      <button type="submit">Filtrar</button>
+                    </form>
+                </header>
+                """;
+    }
+
     private String gerarTabelaChamados() {
-        String linhas = gerarLinhasChamados(chamadoRepository.listar());
+        String linhas = gerarLinhasChamados();
 
         return String.format("""
                 <table border="1">
@@ -117,7 +132,8 @@ public class ChamadoServlet extends HttpServlet {
                 """, linhas);
     }
 
-    private String gerarLinhasChamados(List<Chamado> chamados) {
+    private String gerarLinhasChamados() {
+        List<Chamado> chamados = chamadoRepository.listar();
         StringBuilder sb = new StringBuilder();
 
         for (Chamado chamado : chamados) {
