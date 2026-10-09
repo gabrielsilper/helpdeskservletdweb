@@ -10,11 +10,11 @@ public class DepartamentoRepositoryImpl implements IDepartamentoRepository {
     private final List<Departamento> departamentos;
     private int proximoId = 1;
 
-    DepartamentoRepositoryImpl (List<Departamento> departamentos) {
+    public DepartamentoRepositoryImpl (List<Departamento> departamentos) {
         this.departamentos = departamentos;
     }
 
-    DepartamentoRepositoryImpl () {
+    public DepartamentoRepositoryImpl () {
         this.departamentos = new ArrayList<>();
     }
 

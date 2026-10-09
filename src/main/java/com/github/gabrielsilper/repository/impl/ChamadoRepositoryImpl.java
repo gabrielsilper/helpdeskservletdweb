@@ -10,11 +10,11 @@ public class ChamadoRepositoryImpl implements IChamadoRepository {
     private final List<Chamado> chamados;
     private int proximoId = 1;
 
-    ChamadoRepositoryImpl (List<Chamado> chamados) {
+    public ChamadoRepositoryImpl (List<Chamado> chamados) {
         this.chamados = chamados;
     }
 
-    ChamadoRepositoryImpl () {
+    public ChamadoRepositoryImpl () {
         this.chamados = new ArrayList<>();
     }
 
