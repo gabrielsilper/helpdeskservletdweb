@@ -1,17 +1,31 @@
 package com.github.gabrielsilper;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.startup.Tomcat;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+import java.io.File;
+
+public class Main {
+    public static void main(String[] args) throws LifecycleException {
+        Tomcat tomcat = new Tomcat();
+
+        int port = 8081;
+
+        tomcat.setPort(port);
+        tomcat.getConnector(); // Inicia o conector http;
+
+        String webapp = new File("src/main/webapp").getAbsolutePath();
+
+        Context context = tomcat.addWebapp("", webapp);
+
+//        String servletName = "PessoaServlet";
+//        Tomcat.addServlet(context, servletName, new PessoaServlet());
+//        context.addServletMappingDecoded("/pessoa", servletName);
+//
+//        System.out.println("Starting server and listening on port" + port + "...");
+
+        tomcat.start();
+        tomcat.getServer().await();
     }
 }
