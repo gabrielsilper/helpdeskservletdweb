@@ -62,4 +62,9 @@ public class ChamadoRepositoryImpl implements IChamadoRepository {
             }
         }
     }
+
+    @Override
+    public void deletar(Chamado chamado) {
+        chamados.remove(chamado);
+    }
 }

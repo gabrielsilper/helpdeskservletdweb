@@ -10,4 +10,5 @@ public interface IChamadoRepository {
     List<Chamado> listar(String filtro);
     Chamado buscarPorId(Integer id);
     void atualizar(Chamado chamado);
+    void deletar(Chamado chamado);
 }

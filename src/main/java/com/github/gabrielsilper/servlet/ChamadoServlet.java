@@ -176,21 +176,32 @@ public class ChamadoServlet extends HttpServlet {
             action = "listar";
         }
 
+        // Melhorar esse monte de if e uso do switch para ficar algo mais legível
         String conteudo;
-        if ("cadastrar".equals(action)) {
-            conteudo = gerarFormCadastro();
-        } else if ("editar".equals(action)) {
-            Chamado chamado = null;
-            if (id != null) {
-                chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
+        switch (action) {
+            case "cadastrar" -> conteudo = gerarFormCadastro();
+            case "editar" -> {
+                if (id != null) {
+                    Chamado chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
+                    if (chamado != null) {
+                        conteudo = gerarFormEdicao(chamado);
+                    } else {
+                        conteudo = gerarTabelaChamados(filtro);
+                    }
+                } else {
+                    conteudo = gerarTabelaChamados(filtro);
+                }
             }
-            if (chamado == null) {
+            case "deletar" -> {
+                if (id != null) {
+                    Chamado chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
+                    if (chamado != null) {
+                        chamadoRepository.deletar(chamado);
+                    }
+                }
                 conteudo = gerarTabelaChamados(filtro);
-            } else {
-                conteudo = gerarFormEdicao(chamado);
             }
-        } else {
-            conteudo = gerarTabelaChamados(filtro);
+            default -> conteudo = gerarTabelaChamados(filtro);
         }
 
         return String.format("""
@@ -350,11 +361,19 @@ public class ChamadoServlet extends HttpServlet {
             sb.append("      <td>").append(chamado.getCodigoEquipamento()).append("</td>\n");
             sb.append("      <td>").append(chamado.getCodigoSalaAtendimento()).append("</td>\n");
             sb.append("      <td>").append(chamado.getDepartamento().getNome()).append("</td>\n");
-            sb.append("      <td>").append("<a href=\"chamados?action=editar&id=")
-                    .append(chamado.getId()).append("\">Alterar</a>").append("</td>\n");
+            sb.append(getTableDataAcoes(chamado));
             sb.append("    </tr>\n");
         }
 
         return sb.toString();
+    }
+
+    private String getTableDataAcoes(Chamado chamado) {
+        return String.format("""
+                <td>
+                  <a href="chamados?action=editar&id=%d">Alterar</a>
+                  <a href="chamados?action=deletar&id=%d">Deletar</a>
+                </td>
+                """, chamado.getId(), chamado.getId());
     }
 }
