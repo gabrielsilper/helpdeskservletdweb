@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ChamadoServlet extends HttpServlet {
     private final IDepartamentoRepository departamentoRepository;
@@ -68,7 +69,7 @@ public class ChamadoServlet extends HttpServlet {
     ) throws IOException {
         resp.setContentType("text/html");
         resp.setCharacterEncoding("UTF-8");
-        resp.getWriter().println("""
+        resp.getWriter().printf("""
                 <!DOCTYPE html>
                 <html lang="pt-BR">
                 <head>
@@ -78,7 +79,59 @@ public class ChamadoServlet extends HttpServlet {
                 </head>
                 <body>
                     <h1>Helpdesk - Chamados de Suporte de TI</h1>
+                %s
                 </body>
-                </html>""");
+                </html>""", gerarMain());
+    }
+
+    private String gerarMain() {
+        String tabelaChamados = gerarTabelaChamados();
+
+        return String.format("""
+                <main>
+                  %s
+                </main>
+                """, tabelaChamados);
+    }
+
+    private String gerarTabelaChamados() {
+        String linhas = gerarLinhasChamados(chamadoRepository.listar());
+
+        return String.format("""
+                <table border="1">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Título</th>
+                      <th>Solicitante</th>
+                      <th>Descrição</th>
+                      <th>Patrimônio</th>
+                      <th>Sala</th>
+                      <th>Departamento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    %s
+                  </tbody>
+                </table>
+                """, linhas);
+    }
+
+    private String gerarLinhasChamados(List<Chamado> chamados) {
+        StringBuilder sb = new StringBuilder();
+
+        for (Chamado chamado : chamados) {
+            sb.append("    <tr>\n");
+            sb.append("      <td>").append(chamado.getId()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getTitulo()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getSolicitante()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getDescricao()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getCodigoEquipamento()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getCodigoSalaAtendimento()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getDepartamento().getNome()).append("</td>\n");
+            sb.append("    </tr>\n");
+        }
+
+        return sb.toString();
     }
 }
