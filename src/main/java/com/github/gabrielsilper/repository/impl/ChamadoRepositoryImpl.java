@@ -5,6 +5,7 @@ import com.github.gabrielsilper.repository.IChamadoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ChamadoRepositoryImpl implements IChamadoRepository {
     private final List<Chamado> chamados;
@@ -43,5 +44,22 @@ public class ChamadoRepositoryImpl implements IChamadoRepository {
                 .filter(chamado -> chamado.getTitulo().toLowerCase().contains(termo)
                         || chamado.getSolicitante().toLowerCase().contains(termo))
                 .toList();
+    }
+
+    @Override
+    public Chamado buscarPorId(Integer id) {
+        return chamados.stream()
+                .filter(chamado -> Objects.equals(chamado.getId(), id))
+                .findFirst().orElse(null);
+    }
+
+    @Override
+    public void atualizar(Chamado chamado) {
+        for (int i = 0; i < chamados.size(); i++) {
+            if (Objects.equals(chamados.get(i).getId(), chamado.getId())) {
+                chamados.set(i, chamado);
+                return;
+            }
+        }
     }
 }

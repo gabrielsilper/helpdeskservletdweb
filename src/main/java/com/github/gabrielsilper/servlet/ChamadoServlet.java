@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class ChamadoServlet extends HttpServlet {
     private final IDepartamentoRepository departamentoRepository;
@@ -68,9 +69,16 @@ public class ChamadoServlet extends HttpServlet {
     ) throws IOException {
        String action = req.getParameter("action");
        String filtro = req.getParameter("pesquisa");
+       String id = req.getParameter("id");
 
         if ("salvar".equals(action)) {
             salvarChamado(req);
+            resp.sendRedirect("chamados");
+            return;
+        }
+
+        if ("atualizar".equals(action)) {
+            atualizarChamado(req);
             resp.sendRedirect("chamados");
             return;
         }
@@ -90,7 +98,7 @@ public class ChamadoServlet extends HttpServlet {
                     %s
                     %s
                   </body>
-                </html>""", gerarHeader(), gerarMain(action, filtro));
+                </html>""", gerarHeader(), gerarMain(action, filtro, id));
     }
 
     private void salvarChamado(HttpServletRequest req) {
@@ -127,7 +135,43 @@ public class ChamadoServlet extends HttpServlet {
         ));
     }
 
-    private String gerarMain(String action, String filtro) {
+    private void atualizarChamado(HttpServletRequest req) {
+        String id = req.getParameter("id");
+        String titulo = req.getParameter("titulo");
+        String solicitante = req.getParameter("solicitante");
+        String descricao = req.getParameter("descricao");
+        String codigoEquipamento = req.getParameter("codigoEquipamento");
+        String codigoSalaAtendimento = req.getParameter("codigoSalaAtendimento");
+        String departamentoId = req.getParameter("departamentoId");
+
+        if (id == null || id.isBlank()
+                || titulo == null || titulo.isBlank()
+                || solicitante == null || solicitante.isBlank()
+                || descricao == null || descricao.isBlank()
+                || codigoEquipamento == null || codigoEquipamento.isBlank()
+                || codigoSalaAtendimento == null || codigoSalaAtendimento.isBlank()
+                || departamentoId == null || departamentoId.isBlank()) {
+            return;
+        }
+
+        Chamado chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
+        Departamento departamento = departamentoRepository.buscarPorId(Integer.parseInt(departamentoId));
+
+        if (chamado == null || departamento == null) {
+            return;
+        }
+
+        chamado.setTitulo(titulo);
+        chamado.setSolicitante(solicitante);
+        chamado.setDescricao(descricao);
+        chamado.setCodigoEquipamento(Integer.parseInt(codigoEquipamento));
+        chamado.setCodigoSalaAtendimento(Integer.parseInt(codigoSalaAtendimento));
+        chamado.setDepartamento(departamento);
+
+        chamadoRepository.atualizar(chamado);
+    }
+
+    private String gerarMain(String action, String filtro, String id) {
         if (action == null) {
             action = "listar";
         }
@@ -135,6 +179,16 @@ public class ChamadoServlet extends HttpServlet {
         String conteudo;
         if ("cadastrar".equals(action)) {
             conteudo = gerarFormCadastro();
+        } else if ("editar".equals(action)) {
+            Chamado chamado = null;
+            if (id != null) {
+                chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
+            }
+            if (chamado == null) {
+                conteudo = gerarTabelaChamados(filtro);
+            } else {
+                conteudo = gerarFormEdicao(chamado);
+            }
         } else {
             conteudo = gerarTabelaChamados(filtro);
         }
@@ -161,7 +215,7 @@ public class ChamadoServlet extends HttpServlet {
     }
 
     private String gerarFormCadastro() {
-        String opcoes = gerarOpcoesDepartamentos();
+        String opcoes = gerarOpcoesDepartamentos(null);
 
         return String.format("""
                 <form method="get" action="chamados">
@@ -198,12 +252,59 @@ public class ChamadoServlet extends HttpServlet {
                 """, opcoes);
     }
 
-    private String gerarOpcoesDepartamentos() {
+    private String gerarFormEdicao(Chamado chamado) {
+        String opcoes = gerarOpcoesDepartamentos(chamado.getDepartamento().getId());
+
+        return String.format("""
+                <form method="get" action="chamados">
+                  <input type="hidden" name="action" value="atualizar"/>
+                  <input type="hidden" name="id" value="%s"/>
+                  <div>
+                    <label for="titulo">Título:</label>
+                    <input type="text" id="titulo" name="titulo" value="%s"/>
+                  </div>
+                  <div>
+                    <label for="solicitante">Solicitante:</label>
+                    <input type="text" id="solicitante" name="solicitante" value="%s"/>
+                  </div>
+                  <div>
+                    <label for="descricao">Descrição:</label>
+                    <input type="text" id="descricao" name="descricao" value="%s"/>
+                  </div>
+                  <div>
+                    <label for="codigoEquipamento">Patrimônio:</label>
+                    <input type="number" id="codigoEquipamento" name="codigoEquipamento" value="%s"/>
+                  </div>
+                  <div>
+                    <label for="codigoSalaAtendimento">Sala:</label>
+                    <input type="number" id="codigoSalaAtendimento" name="codigoSalaAtendimento" value="%s"/>
+                  </div>
+                  <div>
+                    <label for="departamentoId">Departamento:</label>
+                    <select id="departamentoId" name="departamentoId">
+                      %s
+                    </select>
+                  </div>
+                  <button type="submit">Atualizar</button>
+                  <a href="chamados">Cancelar</a>
+                </form>
+                """, chamado.getId(), chamado.getTitulo(), chamado.getSolicitante(),
+                chamado.getDescricao(), chamado.getCodigoEquipamento(),
+                chamado.getCodigoSalaAtendimento(), opcoes);
+    }
+
+    private String gerarOpcoesDepartamentos(Integer selecionadoId) {
         List<Departamento> departamentos = departamentoRepository.listar();
         StringBuilder sb = new StringBuilder();
 
         for (Departamento departamento : departamentos) {
-            sb.append("      <option value=\"").append(departamento.getId()).append("\">")
+            sb.append("      <option value=\"").append(departamento.getId()).append("\"");
+
+            if (Objects.equals(departamento.getId(), selecionadoId)) {
+                sb.append(" selected");
+            }
+
+            sb.append(">")
                     .append(departamento.getNome()).append("/").append(departamento.getSigla())
                     .append("</option>\n");
         }
@@ -226,6 +327,7 @@ public class ChamadoServlet extends HttpServlet {
                       <th>Patrimônio</th>
                       <th>Sala</th>
                       <th>Departamento</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -248,6 +350,8 @@ public class ChamadoServlet extends HttpServlet {
             sb.append("      <td>").append(chamado.getCodigoEquipamento()).append("</td>\n");
             sb.append("      <td>").append(chamado.getCodigoSalaAtendimento()).append("</td>\n");
             sb.append("      <td>").append(chamado.getDepartamento().getNome()).append("</td>\n");
+            sb.append("      <td>").append("<a href=\"chamados?action=editar&id=")
+                    .append(chamado.getId()).append("\">Alterar</a>").append("</td>\n");
             sb.append("    </tr>\n");
         }
 
