@@ -7,8 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChamadoRepositoryImpl implements IChamadoRepository {
-    private final List<Chamado> chamados = new ArrayList<>();
+    private final List<Chamado> chamados;
     private int proximoId = 1;
+
+    ChamadoRepositoryImpl (List<Chamado> chamados) {
+        this.chamados = chamados;
+    }
+
+    ChamadoRepositoryImpl () {
+        this.chamados = new ArrayList<>();
+    }
 
     @Override
     public void adicionar(Chamado chamado) {

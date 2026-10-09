@@ -7,8 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DepartamentoRepositoryImpl implements IDepartamentoRepository {
-    private final List<Departamento> departamentos = new ArrayList<>();
+    private final List<Departamento> departamentos;
     private int proximoId = 1;
+
+    DepartamentoRepositoryImpl (List<Departamento> departamentos) {
+        this.departamentos = departamentos;
+    }
+
+    DepartamentoRepositoryImpl () {
+        this.departamentos = new ArrayList<>();
+    }
 
     @Override
     public void adicionar(Departamento departamento) {
