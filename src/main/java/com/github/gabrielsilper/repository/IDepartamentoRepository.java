@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface IDepartamentoRepository {
     void adicionar(Departamento departamento);
-
     List<Departamento> listar();
+    Departamento buscarPorId(Integer id);
 }

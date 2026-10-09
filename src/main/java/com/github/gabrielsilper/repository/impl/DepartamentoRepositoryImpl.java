@@ -5,6 +5,7 @@ import com.github.gabrielsilper.repository.IDepartamentoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DepartamentoRepositoryImpl implements IDepartamentoRepository {
     private final List<Departamento> departamentos;
@@ -29,5 +30,12 @@ public class DepartamentoRepositoryImpl implements IDepartamentoRepository {
     @Override
     public List<Departamento> listar() {
         return new ArrayList<>(departamentos);
+    }
+
+    @Override
+    public Departamento buscarPorId(Integer id) {
+        return departamentos.stream()
+                .filter(departamento -> Objects.equals(departamento.getId(), id))
+                .findFirst().orElse(null);
     }
 }

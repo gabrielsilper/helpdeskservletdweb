@@ -4,7 +4,6 @@ import com.github.gabrielsilper.domain.model.Chamado;
 import com.github.gabrielsilper.domain.model.Departamento;
 import com.github.gabrielsilper.repository.IChamadoRepository;
 import com.github.gabrielsilper.repository.IDepartamentoRepository;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -67,7 +66,12 @@ public class ChamadoServlet extends HttpServlet {
             HttpServletRequest req,
             HttpServletResponse resp
     ) throws IOException {
+       String action = req.getParameter("action");
        String filtro = req.getParameter("pesquisa");
+
+        if ("salvar".equals(action)) {
+            salvarChamado(req);
+        }
 
         resp.setContentType("text/html");
         resp.setCharacterEncoding("UTF-8");
@@ -84,17 +88,60 @@ public class ChamadoServlet extends HttpServlet {
                     %s
                     %s
                   </body>
-                </html>""", gerarHeader(), gerarMain(filtro));
+                </html>""", gerarHeader(), gerarMain(action, filtro));
     }
 
-    private String gerarMain(String filtro) {
-        String tabelaChamados = gerarTabelaChamados(filtro);
+    private void salvarChamado(HttpServletRequest req) {
+        String titulo = req.getParameter("titulo");
+        String solicitante = req.getParameter("solicitante");
+        String descricao = req.getParameter("descricao");
+        String codigoEquipamento = req.getParameter("codigoEquipamento");
+        String codigoSalaAtendimento = req.getParameter("codigoSalaAtendimento");
+        String departamentoId = req.getParameter("departamentoId");
+
+        if (titulo == null || titulo.isBlank()
+                || solicitante == null || solicitante.isBlank()
+                || descricao == null || descricao.isBlank()
+                || codigoEquipamento == null || codigoEquipamento.isBlank()
+                || codigoSalaAtendimento == null || codigoSalaAtendimento.isBlank()
+                || departamentoId == null || departamentoId.isBlank()) {
+            return;
+        }
+
+        Integer idDepartamento = Integer.parseInt(departamentoId);
+        Departamento departamento = departamentoRepository.buscarPorId(idDepartamento);
+
+        if (departamento == null) {
+            return;
+        }
+
+        chamadoRepository.adicionar(new Chamado(
+                titulo,
+                solicitante,
+                descricao,
+                Integer.parseInt(codigoEquipamento),
+                Integer.parseInt(codigoSalaAtendimento),
+                departamento
+        ));
+    }
+
+    private String gerarMain(String action, String filtro) {
+        if (action == null) {
+            action = "listar";
+        }
+
+        String conteudo;
+        if ("cadastrar".equals(action)) {
+            conteudo = gerarFormCadastro();
+        } else {
+            conteudo = gerarTabelaChamados(filtro);
+        }
 
         return String.format("""
                 <main>
                   %s
                 </main>
-                """, tabelaChamados);
+                """, conteudo);
     }
 
     private String gerarHeader() {
@@ -107,8 +154,59 @@ public class ChamadoServlet extends HttpServlet {
                       </div>
                       <button type="submit">Filtrar</button>
                     </form>
+                    <a href="chamados?action=cadastrar">Cadastrar Chamado</a>
                 </header>
                 """;
+    }
+
+    private String gerarFormCadastro() {
+        String opcoes = gerarOpcoesDepartamentos();
+
+        return String.format("""
+                <form method="get" action="chamados">
+                  <input type="hidden" name="action" value="salvar"/>
+                  <div>
+                    <label for="titulo">Título:</label>
+                    <input type="text" id="titulo" name="titulo"/>
+                  </div>
+                  <div>
+                    <label for="solicitante">Solicitante:</label>
+                    <input type="text" id="solicitante" name="solicitante"/>
+                  </div>
+                  <div>
+                    <label for="descricao">Descrição:</label>
+                    <input type="text" id="descricao" name="descricao"/>
+                  </div>
+                  <div>
+                    <label for="codigoEquipamento">Patrimônio:</label>
+                    <input type="number" id="codigoEquipamento" name="codigoEquipamento"/>
+                  </div>
+                  <div>
+                    <label for="codigoSalaAtendimento">Sala:</label>
+                    <input type="number" id="codigoSalaAtendimento" name="codigoSalaAtendimento"/>
+                  </div>
+                  <div>
+                    <label for="departamentoId">Departamento:</label>
+                    <select id="departamentoId" name="departamentoId">
+                      %s
+                    </select>
+                  </div>
+                  <button type="submit">Salvar</button>
+                </form>
+                """, opcoes);
+    }
+
+    private String gerarOpcoesDepartamentos() {
+        List<Departamento> departamentos = departamentoRepository.listar();
+        StringBuilder sb = new StringBuilder();
+
+        for (Departamento departamento : departamentos) {
+            sb.append("      <option value=\"").append(departamento.getId()).append("\">")
+                    .append(departamento.getNome()).append("/").append(departamento.getSigla())
+                    .append("</option>\n");
+        }
+
+        return sb.toString();
     }
 
     private String gerarTabelaChamados(String filtro) {
