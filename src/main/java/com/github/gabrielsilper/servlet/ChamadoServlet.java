@@ -67,6 +67,8 @@ public class ChamadoServlet extends HttpServlet {
             HttpServletRequest req,
             HttpServletResponse resp
     ) throws IOException {
+       String filtro = req.getParameter("pesquisa");
+
         resp.setContentType("text/html");
         resp.setCharacterEncoding("UTF-8");
         resp.getWriter().printf("""
@@ -82,11 +84,11 @@ public class ChamadoServlet extends HttpServlet {
                     %s
                     %s
                   </body>
-                </html>""", gerarHeader(), gerarMain());
+                </html>""", gerarHeader(), gerarMain(filtro));
     }
 
-    private String gerarMain() {
-        String tabelaChamados = gerarTabelaChamados();
+    private String gerarMain(String filtro) {
+        String tabelaChamados = gerarTabelaChamados(filtro);
 
         return String.format("""
                 <main>
@@ -109,8 +111,8 @@ public class ChamadoServlet extends HttpServlet {
                 """;
     }
 
-    private String gerarTabelaChamados() {
-        String linhas = gerarLinhasChamados();
+    private String gerarTabelaChamados(String filtro) {
+        String linhas = gerarLinhasChamados(filtro);
 
         return String.format("""
                 <table border="1">
@@ -132,8 +134,8 @@ public class ChamadoServlet extends HttpServlet {
                 """, linhas);
     }
 
-    private String gerarLinhasChamados() {
-        List<Chamado> chamados = chamadoRepository.listar();
+    private String gerarLinhasChamados(String filtro) {
+        List<Chamado> chamados = chamadoRepository.listar(filtro);
         StringBuilder sb = new StringBuilder();
 
         for (Chamado chamado : chamados) {

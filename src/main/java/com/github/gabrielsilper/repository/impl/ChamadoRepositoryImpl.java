@@ -30,4 +30,18 @@ public class ChamadoRepositoryImpl implements IChamadoRepository {
     public List<Chamado> listar() {
         return new ArrayList<>(chamados);
     }
+
+    @Override
+    public List<Chamado> listar(String filtro) {
+        if (filtro == null || filtro.isBlank()) {
+            return listar();
+        }
+
+        String termo = filtro.toLowerCase();
+
+        return chamados.stream()
+                .filter(chamado -> chamado.getTitulo().toLowerCase().contains(termo)
+                        || chamado.getSolicitante().toLowerCase().contains(termo))
+                .toList();
+    }
 }
