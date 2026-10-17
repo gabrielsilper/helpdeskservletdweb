@@ -110,9 +110,8 @@ public class ChamadoServlet extends HttpServlet {
                   <body>
                     <h1>Helpdesk - Chamados de Suporte de TI</h1>
                     %s
-                    %s
                   </body>
-                </html>""", gerarHeader(), gerarMain(action, filtro, id)
+                </html>""", gerarMain(action, filtro, id)
         );
     }
 
@@ -228,20 +227,6 @@ public class ChamadoServlet extends HttpServlet {
                 </main>
                 """, conteudo
         );
-    }
-
-    private String gerarHeader() {
-        return """
-                <header>
-                    <form method="get" action="chamados">
-                      <div>
-                        <label for="pesquisa">Filtrar por título ou solicitante:</label>
-                        <input type="text" id="pesquisa" name="pesquisa" placeholder="Digite o título ou solicitante..."/>
-                      </div>
-                      <button type="submit">Filtrar</button>
-                    </form>
-                </header>
-                """;
     }
 
     private String gerarFormCadastro() {
@@ -376,6 +361,14 @@ public class ChamadoServlet extends HttpServlet {
         String linhas = gerarLinhasChamados(filtro);
 
         return String.format("""
+                <form method="get" action="chamados">
+                  <div>
+                    <label for="pesquisa">Filtrar por título ou solicitante:</label>
+                    <input type="text" id="pesquisa" name="pesquisa" placeholder="Digite o título ou solicitante..."/>
+                  </div>
+                  <button type="submit">Filtrar</button>
+                </form>
+                
                 <a href="chamados?action=cadastrar">Cadastrar Chamado</a>
                 <table border="1">
                   <thead>
