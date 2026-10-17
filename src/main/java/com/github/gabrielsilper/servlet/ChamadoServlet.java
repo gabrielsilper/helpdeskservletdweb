@@ -193,10 +193,11 @@ public class ChamadoServlet extends HttpServlet {
             action = "listar";
         }
 
-        // Melhorar esse monte de if e uso do switch para ficar algo mais legível
+        // Ainda preciso melhorar esse monte de if e uso do switch para ficar algo mais legível
         String conteudo;
         switch (action) {
             case "cadastrar" -> conteudo = gerarFormCadastro();
+
             case "editar" -> {
                 if (id != null) {
                     Chamado chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
@@ -209,6 +210,7 @@ public class ChamadoServlet extends HttpServlet {
                     conteudo = gerarTabelaChamados(filtro);
                 }
             }
+
             case "deletar" -> {
                 if (id != null) {
                     Chamado chamado = chamadoRepository.buscarPorId(Integer.parseInt(id));
@@ -218,6 +220,7 @@ public class ChamadoServlet extends HttpServlet {
                 }
                 conteudo = gerarTabelaChamados(filtro);
             }
+
             default -> conteudo = gerarTabelaChamados(filtro);
         }
 
