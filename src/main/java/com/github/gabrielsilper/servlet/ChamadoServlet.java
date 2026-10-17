@@ -234,6 +234,8 @@ public class ChamadoServlet extends HttpServlet {
         String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento(null);
 
         return String.format("""
+                <h2>Cadastra Chamado</h2>
+                
                 <form method="get" action="chamados">
                   <input type="hidden" name="action" value="salvar"/>
                   <div>
@@ -278,6 +280,8 @@ public class ChamadoServlet extends HttpServlet {
         String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento(chamado.getTipoAtendimento());
 
         return String.format("""
+                        <h2>Atualiza Chamado</h2>
+                        
                         <form method="get" action="chamados">
                           <input type="hidden" name="action" value="atualizar"/>
                           <input type="hidden" name="id" value="%s"/>
