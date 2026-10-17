@@ -1,5 +1,7 @@
 package com.github.gabrielsilper.domain.model;
 
+import com.github.gabrielsilper.domain.enums.TipoAtendimento;
+
 import java.util.Objects;
 
 public class Chamado {
@@ -9,6 +11,7 @@ public class Chamado {
     private String descricao;
     private int codigoEquipamento;
     private int codigoSalaAtendimento;
+    private TipoAtendimento tipoAtendimento;
     private Departamento departamento;
 
     public Chamado() {}
@@ -19,6 +22,7 @@ public class Chamado {
             String descricao,
             int codigoEquipamento,
             int codigoSalaAtendimento,
+            TipoAtendimento tipoAtendimento,
             Departamento departamento
     ) {
         this.titulo = titulo;
@@ -26,6 +30,7 @@ public class Chamado {
         this.descricao = descricao;
         this.codigoEquipamento = codigoEquipamento;
         this.codigoSalaAtendimento = codigoSalaAtendimento;
+        this.tipoAtendimento = tipoAtendimento;
         this.departamento = departamento;
     }
 
@@ -36,6 +41,7 @@ public class Chamado {
             String descricao,
             int codigoEquipamento,
             int codigoSalaAtendimento,
+            TipoAtendimento tipoAtendimento,
             Departamento departamento
     ) {
         this.id = id;
@@ -44,6 +50,7 @@ public class Chamado {
         this.descricao = descricao;
         this.codigoEquipamento = codigoEquipamento;
         this.codigoSalaAtendimento = codigoSalaAtendimento;
+        this.tipoAtendimento = tipoAtendimento;
         this.departamento = departamento;
     }
 
@@ -95,6 +102,14 @@ public class Chamado {
         this.codigoSalaAtendimento = codigoSalaAtendimento;
     }
 
+    public TipoAtendimento getTipoAtendimento() {
+        return tipoAtendimento;
+    }
+
+    public void setTipoAtendimento(TipoAtendimento tipoAtendimento) {
+        this.tipoAtendimento = tipoAtendimento;
+    }
+
     public Departamento getDepartamento() {
         return departamento;
     }
@@ -109,6 +124,7 @@ public class Chamado {
         Chamado that = (Chamado) o;
         return codigoEquipamento == that.codigoEquipamento
                 && codigoSalaAtendimento == that.codigoSalaAtendimento
+                && Objects.equals(tipoAtendimento, that.tipoAtendimento)
                 && Objects.equals(id, that.id)
                 && Objects.equals(titulo, that.titulo)
                 && Objects.equals(solicitante, that.solicitante)
@@ -119,7 +135,7 @@ public class Chamado {
     @Override
     public int hashCode() {
         return Objects.hash(id, titulo, solicitante, descricao, codigoEquipamento,
-                codigoSalaAtendimento, departamento);
+                codigoSalaAtendimento, tipoAtendimento, departamento);
     }
 
     @Override
@@ -131,6 +147,7 @@ public class Chamado {
                 ", descricao='" + descricao + '\'' +
                 ", codigoEquipamento=" + codigoEquipamento +
                 ", codigoSalaAtendimento=" + codigoSalaAtendimento +
+                ", tipoAtendimento=" + tipoAtendimento +
                 ", departamento=" + departamento +
                 '}';
     }
