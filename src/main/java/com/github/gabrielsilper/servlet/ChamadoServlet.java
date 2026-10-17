@@ -81,9 +81,9 @@ public class ChamadoServlet extends HttpServlet {
             HttpServletRequest req,
             HttpServletResponse resp
     ) throws IOException {
-       String action = req.getParameter("action");
-       String filtro = req.getParameter("pesquisa");
-       String id = req.getParameter("id");
+        String action = req.getParameter("action");
+        String filtro = req.getParameter("pesquisa");
+        String id = req.getParameter("id");
 
         if ("salvar".equals(action)) {
             salvarChamado(req);
@@ -112,7 +112,8 @@ public class ChamadoServlet extends HttpServlet {
                     %s
                     %s
                   </body>
-                </html>""", gerarHeader(), gerarMain(action, filtro, id));
+                </html>""", gerarHeader(), gerarMain(action, filtro, id)
+        );
     }
 
     private void salvarChamado(HttpServletRequest req) {
@@ -225,7 +226,8 @@ public class ChamadoServlet extends HttpServlet {
                 <main>
                   %s
                 </main>
-                """, conteudo);
+                """, conteudo
+        );
     }
 
     private String gerarHeader() {
@@ -244,7 +246,7 @@ public class ChamadoServlet extends HttpServlet {
 
     private String gerarFormCadastro() {
         String opcoes = gerarOpcoesDepartamentos(null);
-        String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento();
+        String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento(null);
 
         return String.format("""
                 <form method="get" action="chamados">
@@ -282,63 +284,65 @@ public class ChamadoServlet extends HttpServlet {
                   <button type="submit">Salvar</button>
                   <a href="chamados">Cancelar</a>
                 </form>
-                """, opcoesTiposAtendimento, opcoes);
+                """, opcoesTiposAtendimento, opcoes
+        );
     }
 
     private String gerarFormEdicao(Chamado chamado) {
         String opcoes = gerarOpcoesDepartamentos(chamado.getDepartamento().getId());
-        String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento();
+        String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento(chamado.getTipoAtendimento());
 
         return String.format("""
-                <form method="get" action="chamados">
-                  <input type="hidden" name="action" value="atualizar"/>
-                  <input type="hidden" name="id" value="%s"/>
-                  <div>
-                    <label for="titulo">Título:</label>
-                    <input type="text" id="titulo" name="titulo" value="%s"/>
-                  </div>
-                  <div>
-                    <label for="solicitante">Solicitante:</label>
-                    <input type="text" id="solicitante" name="solicitante" value="%s"/>
-                  </div>
-                  <div>
-                    <label for="descricao">Descrição:</label>
-                    <input type="text" id="descricao" name="descricao" value="%s"/>
-                  </div>
-                  <div>
-                    <label for="codigoEquipamento">Patrimônio:</label>
-                    <input type="number" id="codigoEquipamento" name="codigoEquipamento" value="%s"/>
-                  </div>
-                  <div>
-                    <label for="codigoSalaAtendimento">Sala:</label>
-                    <input type="number" id="codigoSalaAtendimento" name="codigoSalaAtendimento" value="%s"/>
-                  </div>
-                  <div>
-                    <span>Qual o tipo de Atendimento?</span>
-                    %s
-                  </div>
-                  <div>
-                    <label for="departamentoId">Departamento:</label>
-                    <select id="departamentoId" name="departamentoId">
-                      %s
-                    </select>
-                  </div>
-                  <button type="submit">Atualizar</button>
-                  <a href="chamados">Cancelar</a>
-                </form>
-                """, chamado.getId(), chamado.getTitulo(), chamado.getSolicitante(),
+                        <form method="get" action="chamados">
+                          <input type="hidden" name="action" value="atualizar"/>
+                          <input type="hidden" name="id" value="%s"/>
+                          <div>
+                            <label for="titulo">Título:</label>
+                            <input type="text" id="titulo" name="titulo" value="%s"/>
+                          </div>
+                          <div>
+                            <label for="solicitante">Solicitante:</label>
+                            <input type="text" id="solicitante" name="solicitante" value="%s"/>
+                          </div>
+                          <div>
+                            <label for="descricao">Descrição:</label>
+                            <input type="text" id="descricao" name="descricao" value="%s"/>
+                          </div>
+                          <div>
+                            <label for="codigoEquipamento">Patrimônio:</label>
+                            <input type="number" id="codigoEquipamento" name="codigoEquipamento" value="%s"/>
+                          </div>
+                          <div>
+                            <label for="codigoSalaAtendimento">Sala:</label>
+                            <input type="number" id="codigoSalaAtendimento" name="codigoSalaAtendimento" value="%s"/>
+                          </div>
+                          <div>
+                            <span>Qual o tipo de Atendimento?</span>
+                            %s
+                          </div>
+                          <div>
+                            <label for="departamentoId">Departamento:</label>
+                            <select id="departamentoId" name="departamentoId">
+                              %s
+                            </select>
+                          </div>
+                          <button type="submit">Atualizar</button>
+                          <a href="chamados">Cancelar</a>
+                        </form>
+                        """, chamado.getId(), chamado.getTitulo(), chamado.getSolicitante(),
                 chamado.getDescricao(), chamado.getCodigoEquipamento(),
-                chamado.getCodigoSalaAtendimento(), opcoesTiposAtendimento,opcoes);
+                chamado.getCodigoSalaAtendimento(), opcoesTiposAtendimento, opcoes
+        );
     }
 
-    private String gerarOpcoesDepartamentos(Integer selecionadoId) {
+    private String gerarOpcoesDepartamentos(Integer idDepartamentoSelecionado) {
         List<Departamento> departamentos = departamentoRepository.listar();
         StringBuilder sb = new StringBuilder();
 
         for (Departamento departamento : departamentos) {
             sb.append("      <option value=\"").append(departamento.getId()).append("\"");
 
-            if (Objects.equals(departamento.getId(), selecionadoId)) {
+            if (Objects.equals(departamento.getId(), idDepartamentoSelecionado)) {
                 sb.append(" selected");
             }
 
@@ -350,14 +354,19 @@ public class ChamadoServlet extends HttpServlet {
         return sb.toString();
     }
 
-    private String gerarOpcoesTiposAtendimento() {
+    private String gerarOpcoesTiposAtendimento(TipoAtendimento tipoSelecionado) {
         List<TipoAtendimento> tiposAtendimento = TipoAtendimento.getTiposAtendimento();
         StringBuilder sb = new StringBuilder();
 
         for (TipoAtendimento tipoAtendimento : tiposAtendimento) {
             sb.append("<label for=\"tipoAtendimento\">").append(tipoAtendimento.valor).append(":</label>\n")
-                    .append("<input type=\"radio\" id=\"tipoAtendimento\" name=\"tipoAtendimento\"")
-                    .append(" value=\"").append(tipoAtendimento.name()).append("\" />\n\n");
+                    .append("<input type=\"radio\" id=\"tipoAtendimento\" name=\"tipoAtendimento\"");
+
+            if (Objects.equals(tipoAtendimento, tipoSelecionado)) {
+                sb.append(" checked");
+            }
+
+            sb.append(" value=\"").append(tipoAtendimento.name()).append("\" />\n\n");
         }
 
         return sb.toString();
@@ -386,7 +395,8 @@ public class ChamadoServlet extends HttpServlet {
                     %s
                   </tbody>
                 </table>
-                """, linhas);
+                """, linhas
+        );
     }
 
     private String gerarLinhasChamados(String filtro) {
@@ -416,6 +426,7 @@ public class ChamadoServlet extends HttpServlet {
                   <a href="chamados?action=editar&id=%d">Alterar</a>
                   <a href="chamados?action=deletar&id=%d">Deletar</a>
                 </td>
-                """, chamado.getId(), chamado.getId());
+                """, chamado.getId(), chamado.getId()
+        );
     }
 }
