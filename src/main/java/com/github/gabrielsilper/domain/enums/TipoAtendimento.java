@@ -9,7 +9,7 @@ public enum TipoAtendimento {
 
     public final String valor;
 
-    private TipoAtendimento(String valor) {
+    TipoAtendimento(String valor) {
         this.valor = valor;
     }
 

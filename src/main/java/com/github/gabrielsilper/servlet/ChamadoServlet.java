@@ -1,5 +1,6 @@
 package com.github.gabrielsilper.servlet;
 
+import com.github.gabrielsilper.domain.enums.TipoAtendimento;
 import com.github.gabrielsilper.domain.model.Chamado;
 import com.github.gabrielsilper.domain.model.Departamento;
 import com.github.gabrielsilper.repository.IChamadoRepository;
@@ -42,6 +43,7 @@ public class ChamadoServlet extends HttpServlet {
                 "Computador da recepção não apresenta sinal de energia ao pressionar o botão.",
                 10234,
                 101,
+                TipoAtendimento.PRESENCIAL,
                 laboratorios
         ));
         chamadoRepository.adicionar(new Chamado(
@@ -50,6 +52,7 @@ public class ChamadoServlet extends HttpServlet {
                 "Impressora do setor financeiro parou de imprimir e exibe alerta de toner.",
                 20567,
                 203,
+                TipoAtendimento.PRESENCIAL,
                 financeiro
         ));
         chamadoRepository.adicionar(new Chamado(
@@ -58,7 +61,18 @@ public class ChamadoServlet extends HttpServlet {
                 "Conexão com a internet muito lenta, dificultando o acesso ao sistema de folha.",
                 30112,
                 105,
+                TipoAtendimento.PRESENCIAL,
                 rh
+        ));
+
+        chamadoRepository.adicionar(new Chamado(
+                "Título teste para chamado remoto",
+                "Dona Maria",
+                "Uma descrição teste para o chamado remoto",
+                40513,
+                404,
+                TipoAtendimento.REMOTO,
+                secretaria
         ));
     }
 
@@ -107,6 +121,7 @@ public class ChamadoServlet extends HttpServlet {
         String descricao = req.getParameter("descricao");
         String codigoEquipamento = req.getParameter("codigoEquipamento");
         String codigoSalaAtendimento = req.getParameter("codigoSalaAtendimento");
+        String tipoAtendimento = req.getParameter("tipoAtendimento");
         String departamentoId = req.getParameter("departamentoId");
 
         if (titulo == null || titulo.isBlank()
@@ -114,6 +129,7 @@ public class ChamadoServlet extends HttpServlet {
                 || descricao == null || descricao.isBlank()
                 || codigoEquipamento == null || codigoEquipamento.isBlank()
                 || codigoSalaAtendimento == null || codigoSalaAtendimento.isBlank()
+                || tipoAtendimento == null || tipoAtendimento.isBlank()
                 || departamentoId == null || departamentoId.isBlank()) {
             return;
         }
@@ -131,6 +147,7 @@ public class ChamadoServlet extends HttpServlet {
                 descricao,
                 Integer.parseInt(codigoEquipamento),
                 Integer.parseInt(codigoSalaAtendimento),
+                TipoAtendimento.valueOf(tipoAtendimento),
                 departamento
         ));
     }
@@ -227,6 +244,7 @@ public class ChamadoServlet extends HttpServlet {
 
     private String gerarFormCadastro() {
         String opcoes = gerarOpcoesDepartamentos(null);
+        String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento();
 
         return String.format("""
                 <form method="get" action="chamados">
@@ -252,6 +270,10 @@ public class ChamadoServlet extends HttpServlet {
                     <input type="number" id="codigoSalaAtendimento" name="codigoSalaAtendimento"/>
                   </div>
                   <div>
+                    <span>Qual o tipo de Atendimento?</span>
+                    %s
+                  </div>
+                  <div>
                     <label for="departamentoId">Departamento:</label>
                     <select id="departamentoId" name="departamentoId">
                       %s
@@ -260,11 +282,12 @@ public class ChamadoServlet extends HttpServlet {
                   <button type="submit">Salvar</button>
                   <a href="chamados">Cancelar</a>
                 </form>
-                """, opcoes);
+                """, opcoesTiposAtendimento, opcoes);
     }
 
     private String gerarFormEdicao(Chamado chamado) {
         String opcoes = gerarOpcoesDepartamentos(chamado.getDepartamento().getId());
+        String opcoesTiposAtendimento = gerarOpcoesTiposAtendimento();
 
         return String.format("""
                 <form method="get" action="chamados">
@@ -291,6 +314,10 @@ public class ChamadoServlet extends HttpServlet {
                     <input type="number" id="codigoSalaAtendimento" name="codigoSalaAtendimento" value="%s"/>
                   </div>
                   <div>
+                    <span>Qual o tipo de Atendimento?</span>
+                    %s
+                  </div>
+                  <div>
                     <label for="departamentoId">Departamento:</label>
                     <select id="departamentoId" name="departamentoId">
                       %s
@@ -301,7 +328,7 @@ public class ChamadoServlet extends HttpServlet {
                 </form>
                 """, chamado.getId(), chamado.getTitulo(), chamado.getSolicitante(),
                 chamado.getDescricao(), chamado.getCodigoEquipamento(),
-                chamado.getCodigoSalaAtendimento(), opcoes);
+                chamado.getCodigoSalaAtendimento(), opcoesTiposAtendimento,opcoes);
     }
 
     private String gerarOpcoesDepartamentos(Integer selecionadoId) {
@@ -323,6 +350,19 @@ public class ChamadoServlet extends HttpServlet {
         return sb.toString();
     }
 
+    private String gerarOpcoesTiposAtendimento() {
+        List<TipoAtendimento> tiposAtendimento = TipoAtendimento.getTiposAtendimento();
+        StringBuilder sb = new StringBuilder();
+
+        for (TipoAtendimento tipoAtendimento : tiposAtendimento) {
+            sb.append("<label for=\"tipoAtendimento\">").append(tipoAtendimento.valor).append(":</label>\n")
+                    .append("<input type=\"radio\" id=\"tipoAtendimento\" name=\"tipoAtendimento\"")
+                    .append(" value=\"").append(tipoAtendimento.name()).append("\" />\n\n");
+        }
+
+        return sb.toString();
+    }
+
     private String gerarTabelaChamados(String filtro) {
         String linhas = gerarLinhasChamados(filtro);
 
@@ -336,7 +376,8 @@ public class ChamadoServlet extends HttpServlet {
                       <th>Solicitante</th>
                       <th>Descrição</th>
                       <th>Patrimônio</th>
-                      <th>Sala</th>
+                      <th>Sala Atendimento</th>
+                      <th>Tipo Atendimento</th>
                       <th>Departamento</th>
                       <th>Ações</th>
                     </tr>
@@ -360,6 +401,7 @@ public class ChamadoServlet extends HttpServlet {
             sb.append("      <td>").append(chamado.getDescricao()).append("</td>\n");
             sb.append("      <td>").append(chamado.getCodigoEquipamento()).append("</td>\n");
             sb.append("      <td>").append(chamado.getCodigoSalaAtendimento()).append("</td>\n");
+            sb.append("      <td>").append(chamado.getTipoAtendimento().valor).append("</td>\n");
             sb.append("      <td>").append(chamado.getDepartamento().getNome()).append("</td>\n");
             sb.append(getTableDataAcoes(chamado));
             sb.append("    </tr>\n");
